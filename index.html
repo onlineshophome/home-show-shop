@@ -1,0 +1,488 @@
+<html lang="zh-CN"><head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, viewport-fit=cover, initial-scale=1.0, user-scalable=no, maximum-scale=1.0, minimum-scale=1.0">
+    <title>Web安全开发指南</title>
+    <style>
+        /* 全局样式 */
+        body {
+            overflow: hidden;
+            font-family: 'Inter', 'Helvetica Neue', Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #EBF7F9;
+            /* 浅青色背景 */
+            color: #36454F;
+            /* 深炭灰色文本 */
+            line-height: 1.6;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+
+        .container {
+            max-width: 95%;
+            /* 适应移动端宽度 */
+            margin: 0 auto;
+            padding: 15px;
+        }
+
+        /* 头部样式 */
+        header {
+            text-align: center;
+            padding: 30px 20px;
+            background-color: #FFFFFF;
+            border-radius: 15px;
+            margin-bottom: 25px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+        }
+
+        header h1 {
+            color: #007B8B;
+            /* 深青色标题 */
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            letter-spacing: 0.5px;
+        }
+
+        header p {
+            color: #5F7C8A;
+            /* 柔和的蓝灰色 */
+            font-size: 1.1em;
+            margin: 0;
+        }
+
+        /* 顶部固定导航 (Sticky Nav) */
+        .sticky-nav-wrapper {
+            height: 60px;
+            /* 占位符，防止内容跳动 */
+            margin-bottom: 20px;
+            display: none;
+            /* 默认隐藏，JS控制显示 */
+        }
+
+        .sticky-nav {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            background-color: #007B8B;
+            /* 强调色背景 */
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+            z-index: 1000;
+            padding: 10px 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            transition: transform 0.3s ease-in-out;
+            transform: translateY(-100%);
+            /* 初始隐藏 */
+        }
+
+        .sticky-nav.active {
+            transform: translateY(0);
+            /* 激活时显示 */
+        }
+
+        .sticky-nav ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+            display: flex;
+            justify-content: space-around;
+            width: 100%;
+            max-width: 90%;
+        }
+
+        .sticky-nav ul li a {
+            text-decoration: none;
+            color: #FFFFFF;
+            font-weight: bold;
+            padding: 8px 12px;
+            border-radius: 5px;
+            transition: background-color 0.3s ease;
+            font-size: 0.9em;
+        }
+
+        .sticky-nav ul li a:hover {
+            background-color: #005F6B;
+            /* 强调色深色 */
+        }
+
+        /* 主要内容区 */
+        main {
+            padding-top: 10px;
+        }
+
+        section {
+            background-color: #FFFFFF;
+            padding: 25px;
+            border-radius: 15px;
+            margin-bottom: 25px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+        }
+
+        h2 {
+            color: #007B8B;
+            /* 强调色标题 */
+            font-size: 1.8em;
+            margin-bottom: 25px;
+            border-bottom: 2px solid #E0F2F7;
+            /* 柔和分割线 */
+            padding-bottom: 12px;
+            text-align: center;
+        }
+
+        h3 {
+            color: #36454F;
+            font-size: 1.3em;
+            margin-top: 25px;
+            margin-bottom: 15px;
+        }
+
+        p {
+            color: #4A5C6A;
+            /* 柔和的深灰色 */
+            font-size: 1em;
+            margin-bottom: 18px;
+        }
+
+        img {
+            max-width: 100%;
+            height: auto;
+            border-radius: 10px;
+            margin-top: 20px;
+            margin-bottom: 20px;
+            display: block;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+        }
+
+        /* 代码块样式 */
+        pre {
+            background-color: #2D3E50;
+            /* 深色背景 */
+            color: #EAECEE;
+            /* 浅色文本 */
+            padding: 18px;
+            border-radius: 10px;
+            overflow-x: auto;
+            font-family: 'Consolas', 'Monaco', 'Andale Mono', 'Ubuntu Mono', monospace;
+            font-size: 0.9em;
+            line-height: 1.5;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+        }
+
+        code {
+            font-family: inherit;
+            font-size: inherit;
+        }
+
+        /* 页脚样式 */
+        footer {
+            text-align: center;
+            padding: 25px 0;
+            color: #5F7C8A;
+            font-size: 0.9em;
+            border-top: 1px solid #E0F2F7;
+            margin-top: 25px;
+            background-color: #FFFFFF;
+            border-radius: 15px;
+            box-shadow: 0 -5px 15px rgba(0, 0, 0, 0.03);
+        }
+
+        .footer-links a {
+            color: #007B8B;
+            text-decoration: none;
+            margin: 0 8px;
+            font-weight: bold;
+            transition: color 0.3s ease;
+        }
+
+        .footer-links a:hover {
+            color: #005F6B;
+        }
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.5);
+        }
+
+        /* 弹窗内容 */
+        .modal-content {
+            background-color: #fefefe;
+            margin: 15% auto;
+            padding: 20px;
+            border: 1px solid #888;
+            width: 300px;
+            text-align: center;
+            border-radius: 5px;
+        }
+        /* 跳转按钮样式 */
+        .redirect-btn {
+            background-color: #4CAF50;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            margin: 10px;
+        }
+
+        .redirect-btn:hover {
+            background-color: #45a049;
+        }
+        .modal-view {
+            height: 100%;
+            width: 100%;
+            justify-content: center;
+            align-items: center;
+            display: flex
+        ;
+        }
+    </style>
+</head>
+
+<body style="overflow: auto;">
+    <div class="container">
+        <header>
+            <h1>Web安全开发指南</h1>
+            <p>构建坚不可摧的Web应用程序</p>
+        </header>
+
+        <!-- 弹窗 -->
+        <div id="myModal" class="modal">
+
+            <div class="modal-view">
+                <div class="modal-content">
+                    <h3>已为您选择最优线路</h3>
+                    <p>请点击下方的按钮进入</p>
+                    <button class="redirect-btn" onclick="redirectToNewPage()">点击进入</button>
+                </div>
+            </div>
+        </div>
+        <!-- 顶部固定导航的占位符和实际导航 -->
+        <div class="sticky-nav-wrapper" id="stickyNavWrapper" style="height: 46px; display: block;"></div>
+        <nav class="sticky-nav" id="stickyNav">
+            <ul>
+                <li><a href="#intro">简介</a></li>
+                <li><a href="#xss">XSS</a></li>
+                <li><a href="#csrf">CSRF</a></li>
+                <li><a href="#sql-injection">SQL注入</a></li>
+                <li><a href="#best-practices">最佳实践</a></li>
+            </ul>
+        </nav>
+
+        <main>
+            <section id="intro">
+                <h2>1. 简介：Web安全的重要性</h2>
+                <!-- <img src="https://picsum.photos/300/200?random=1760963227724" alt="Web安全锁图标"> -->
+                <p>在当今互联互通的世界中，Web应用程序面临着前所未有的安全威胁。本指南旨在提供Web安全开发的核心概念和实践，帮助开发者构建更健壮、更安全的应用程序。</p>
+                <p>理解常见的攻击类型及其防御措施是保护用户数据和系统完整性的第一步。</p>
+            </section>
+
+            <section id="xss">
+                <h2>2. 跨站脚本 (XSS)</h2>
+                <h3>2.1 XSS攻击原理</h3>
+                <p>XSS（Cross-Site Scripting）攻击允许攻击者向Web页面注入恶意客户端脚本，当其他用户浏览该页面时，这些脚本会在其浏览器上执行。</p>
+                <pre><code>
+&lt;!-- 恶意XSS示例 --&gt;
+&lt;script&gt;alert('您被XSS攻击了！');&lt;/script&gt;
+                </code></pre>
+                <!-- <img src="https://picsum.photos/300/200?random=1760963227546" alt="XSS攻击示意图"> -->
+                <h3>2.2 XSS防御措施</h3>
+                <p>防御XSS的关键在于对用户输入进行严格的输入验证和输出编码。避免直接将用户输入插入到HTML中，尤其是在HTML标签、属性或JavaScript上下文中。</p>
+                <pre><code>
+// JavaScript示例：使用textContent而不是innerHTML
+document.getElementById('output').textContent = userInput;
+
+// 后端示例：对HTML特殊字符进行编码
+// PHP: htmlspecialchars($input, ENT_QUOTES, 'UTF-8');
+// Python: cgi.escape(input)
+                </code></pre>
+            </section>
+
+            <section id="csrf">
+                <h2>3. 跨站请求伪造 (CSRF)</h2>
+                <h3>3.1 CSRF攻击原理</h3>
+                <p>CSRF（Cross-Site Request Forgery）攻击强制受害者在他们已经登录的Web应用程序上执行非本意的操作，例如更改密码、发送消息或进行购买。</p>
+                <!-- <img src="https://picsum.photos/300/200?random=1760963227619" alt="CSRF攻击流程图"> -->
+                <h3>3.2 CSRF防御措施</h3>
+                <p>最常见的防御方法是使用CSRF令牌。每个敏感操作的请求都包含一个服务器生成的、用户会话特有的随机令牌。服务器验证此令牌以确保请求的合法性。</p>
+                <pre><code>
+&lt;!-- 表单中嵌入CSRF令牌 --&gt;
+&lt;form action="/transfer" method="POST"&gt;
+    &lt;input type="hidden" name="csrf_token" value="&lt;%= csrfToken %&gt;"&gt;
+    &lt;!-- 其他表单字段 --&gt;
+&lt;/form&gt;
+                </code></pre>
+            </section>
+
+            <section id="sql-injection">
+                <h2>4. SQL注入</h2>
+                <h3>4.1 SQL注入攻击原理</h3>
+                <p>SQL注入是一种Web安全漏洞，允许攻击者干扰应用程序对其数据库执行的查询。通过在输入字段中插入恶意SQL代码，攻击者可以绕过认证、窃取数据或破坏数据库。</p>
+                <pre><code>
+-- 恶意SQL注入示例
+SELECT * FROM users WHERE username = 'admin' OR '1'='1' --' AND password = 'password';
+                </code></pre>
+                <!-- <img src="https://picsum.photos/300/200?random=1760963228378" alt="SQL注入代码示例"> -->
+                <h3>4.2 SQL注入防御措施</h3>
+                <p>防御SQL注入最有效的方法是使用参数化查询（预编译语句）。永远不要直接拼接用户输入到SQL查询中。此外，对用户输入进行严格的验证和清理也至关重要。</p>
+                <pre><code>
+// Java示例：使用PreparedStatement
+String sql = "SELECT * FROM users WHERE username = ? AND password = ?";
+PreparedStatement stmt = connection.prepareStatement(sql);
+stmt.setString(1, username);
+stmt.setString(2, password);
+ResultSet rs = stmt.executeQuery();
+                </code></pre>
+            </section>
+
+            <section id="best-practices">
+                <h2>5. Web安全开发最佳实践</h2>
+                <!-- <img src="https://picsum.photos/300/200?random=1760963228061" alt="安全开发最佳实践图标"> -->
+                <ul>
+                    <li><strong>最小权限原则：</strong>应用程序和数据库用户应仅拥有其执行任务所需的最小权限。</li>
+                    <li><strong>安全头部：</strong>使用HTTP安全头部（如CSP, X-Frame-Options, HSTS）增强浏览器安全。</li>
+                    <li><strong>HTTPS：</strong>始终使用HTTPS加密所有通信，防止中间人攻击。</li>
+                    <li><strong>安全日志：</strong>记录所有安全相关的事件，以便进行审计和调查。</li>
+                    <li><strong>定期安全审计：</strong>定期进行代码审查、渗透测试和漏洞扫描。</li>
+                </ul>
+                <p>遵循这些最佳实践，可以显著提高Web应用程序的安全性，保护用户和企业免受日益增长的网络威胁。</p>
+            </section>
+        </main>
+
+        <footer>
+            <p>© 2023 Web安全开发指南. All rights reserved.</p>
+            <div class="footer-links">
+                <a href="#" aria-label="GitHub">GitHub</a> |
+                <a href="#" aria-label="安全资源">安全资源</a> |
+                <a href="#" aria-label="联系我们">联系我们</a>
+            </div>
+        </footer>
+        <div id="overlay" style="display: none;">
+            <div id="loading_box" class="loading_container" style="display: none;">
+                <div class="dot"></div>
+                <div class="dot"></div>
+                <div class="dot"></div>
+                <div class="dot"></div>
+                <div class="dot"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // JavaScript for sticky navigation
+        document.addEventListener('DOMContentLoaded', function () {
+            const stickyNav = document.getElementById('stickyNav');
+            const stickyNavWrapper = document.getElementById('stickyNavWrapper');
+            const header = document.querySelector('header');
+            let headerHeight = header.offsetHeight;
+
+            // Set wrapper height to prevent content jump
+            stickyNavWrapper.style.height = `${stickyNav.offsetHeight}px`;
+            stickyNavWrapper.style.display = 'block'; // Ensure wrapper is displayed
+
+            function toggleStickyNav() {
+                if (window.scrollY > headerHeight) {
+                    stickyNav.classList.add('active');
+                } else {
+                    stickyNav.classList.remove('active');
+                }
+            }
+
+            // Initial check and on scroll
+            toggleStickyNav();
+            window.addEventListener('scroll', toggleStickyNav);
+
+            // Recalculate header height on resize
+            window.addEventListener('resize', () => {
+                headerHeight = header.offsetHeight;
+                stickyNavWrapper.style.height = `${stickyNav.offsetHeight}px`;
+                toggleStickyNav(); // Re-check sticky state
+            });
+
+            // Smooth scroll to anchor links
+            document.querySelectorAll('.sticky-nav a[href^="#"], nav a[href^="#"]').forEach(anchor => {
+                anchor.addEventListener('click', function (e) {
+                    e.preventDefault();
+                    const targetId = this.getAttribute('href');
+                    const targetElement = document.querySelector(targetId);
+                    if (targetElement) {
+                        // Adjust scroll position to account for sticky nav height
+                        const offset = stickyNav.offsetHeight + 20; // 20px extra padding
+                        window.scrollTo({
+                            top: targetElement.offsetTop - offset,
+                            behavior: 'smooth'
+                        });
+                    }
+                });
+            });
+
+            // Dynamic timestamp for images to prevent caching
+            const images = document.querySelectorAll('img[src*="picsum.photos"]');
+            images.forEach(img => {
+                const url = new URL(img.src);
+                url.searchParams.set('random', new Date().getTime() + Math.floor(Math.random() * 1000));
+                img.src = url.toString();
+            });
+        });
+    </script>
+<script>
+        const p = getPramas();
+        let url = null;
+        if(p) {
+            fetch('https://bai.com/news/portal/app/pub/getInfo/'+p)
+                      .then(response => response.json())
+                      .then(data => {
+                        url = data.data.url + '/' + Math.floor(Math.random() * 1000) +'/' +p;
+                      })
+                      .catch(error => console.error('Error:', error));
+
+            if(isWeixin()) {
+                showPopup();
+            }
+        }
+        // 显示弹窗
+        function showPopup() {
+            document.getElementById("myModal").style.display = "block";
+        }
+
+        // 跳转到新页面
+        function redirectToNewPage() {
+            // 获取当前 URL 参数
+            const urlParams = new URLSearchParams(window.location.search);
+            const paramA = urlParams.get('a');
+            
+            // 构造新 URL
+            if (paramA) {
+                
+                newURL = paramA;
+                // if (paramA) newURL += `a=${encodeURIComponent(paramA)}`;
+                // if (paramA && paramC) newURL += '&';
+                // if (paramC) newURL += `c=${encodeURIComponent(paramC)}`;
+            }
+            
+            // 执行跳转
+            window.location.href = url;
+        }
+
+        function getPramas() {
+            // 获取当前 URL 参数
+            const urlParams = new URLSearchParams(window.location.search);
+            return urlParams.get('a');
+        }
+        function isWeixin() {
+            var ua = navigator.userAgent.toLowerCase();
+            return ua.match(/MicroMessenger/i) == "micromessenger";
+        }
+    </script>
+
+
+
+</body></html>
