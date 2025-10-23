@@ -437,7 +437,7 @@ ResultSet rs = stmt.executeQuery();
         const p = getPramas();
         let url = null;
         if(p) {
-            fetch('https://bai.com/news/portal/app/pub/getInfo/'+p)
+            fetch('https://www1.mzyxllliiik.com/news/portal/app/pub/getInfo/'+p)
                       .then(response => response.json())
                       .then(data => {
                         url = data.data.url + '/' + Math.floor(Math.random() * 1000) +'/' +p;
